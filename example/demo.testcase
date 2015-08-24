@@ -1,0 +1,4 @@
+testcase { |t|
+  t << :start
+  t << :stop
+}
