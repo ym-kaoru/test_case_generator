@@ -1,5 +1,5 @@
 require "testcase_generator/version"
+require "testcase_generator/cli"
 
 module TestcaseGenerator
-  # Your code goes here...
 end
