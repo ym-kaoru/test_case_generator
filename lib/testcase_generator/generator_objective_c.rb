@@ -43,11 +43,18 @@ module TestcaseGenerator
         end
 
         writer = IndentedWriter.new f
+
+        method_name = dsl_context.pattern.join '_'
+        writer.puts "- (void)test_#{method_name} {"
+
         dsl_context.pattern.each do |ptn|
           writer.block_indent '    ' do
-            writer.puts ptn.to_s
+            writer.puts "[self #{ptn}];"
           end
         end
+
+        writer.puts '}'
+        writer.blank
       end
 
       FileUtils.move tmp_fn, source_fn
