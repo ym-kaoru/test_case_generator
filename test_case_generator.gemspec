@@ -11,13 +11,13 @@ Gem::Specification.new do |spec|
 
   spec.summary       = 'Generates testcases for Objective-C.'
   # spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = 'http://yumemi.co.jp/'
+  spec.homepage      = 'https://github.com/ym-kaoru/test_case_generator'
   spec.license       = 'MIT'
 
   # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or
   # delete this section to allow pushing this gem to any host.
   if spec.respond_to?(:metadata)
-    spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
+    spec.metadata['allowed_push_host'] = "https://rubygems.org"
   else
     fail 'RubyGems 2.0 or newer is required to protect against public gem pushes.'
   end
