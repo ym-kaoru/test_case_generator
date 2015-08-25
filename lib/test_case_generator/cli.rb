@@ -6,7 +6,7 @@ require 'test_case_generator/generator_objective_c'
 
 module TestCaseGenerator
   class CLI < Thor
-    desc 'Injects test-cases', 'Injects test-cases into source file '
+    desc 'inject TEST_CASE TARGET_FILE', 'Injects test-cases into source file '
     def inject(testcase_fn, source_fn)
       puts "Injects #{testcase_fn} into #{source_fn}"
 
