@@ -1,5 +1,7 @@
 module TestcaseGenerator
   class DSLContext
+    attr_reader :children
+
     def initialize
       @patterns = []
       @before = []
@@ -32,7 +34,28 @@ module TestcaseGenerator
     def seq(&block)
       child_context = DSLContext.new
       child_context.instance_eval &block
-      child_context.each { |x| p x }
+
+      first = true
+      tmp = []
+      child_context.children.each { |ctx|
+        tmp2 = []
+        ctx.raw_each { |ptn|
+          if first
+            tmp2 << ptn
+          else
+            tmp.each { |x|
+              tmp2 << x + ptn
+            }
+          end
+        }
+
+        tmp = tmp2
+        first = false
+      }
+
+      tmp.each { |x|
+        @patterns << x
+      }
     end
 
     def raw_each
