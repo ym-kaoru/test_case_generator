@@ -1,24 +1,24 @@
-before { |t|
-  t << :prepare_success
+before { |items|
+  items << :prepare_success
 }
 
-pattern { |t|
-  t << [:start, :stop]
-  t << [:start, :resume, :pause, :stop]
+choice { |items|
+  items << [:start, :stop]
+  items << [:start, :resume, :pause, :stop]
 }
 
-after { |t|
-  t << :should_be_not_error
+after { |items|
+  items << :should_be_not_error
 }
 
-seq {
-  pattern { |t|
-    t << [:A1, :A2]
-    t << [:B1, :B2]
+concat {
+  choice { |items|
+    items << [:A1, :A2]
+    items << [:B1, :B2]
   }
 
-  pattern { |t|
-    t << [:C1, :C2]
-    t << [:D1, :D2]
+  choice { |items|
+    items << [:C1, :C2]
+    items << [:D1, :D2]
   }
 }

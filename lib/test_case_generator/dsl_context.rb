@@ -1,4 +1,4 @@
-require 'testcase_generator/utils'
+require 'test_case_generator/utils'
 
 module TestCaseGenerator
   class DSLContext
@@ -49,8 +49,9 @@ module TestCaseGenerator
         end
       end
     end
+    alias_method :choice, :pattern
 
-    def seq(&block)
+    def concat(&block)
       child_context = DSLContext.new
       child_context.instance_eval &block
 
@@ -79,6 +80,7 @@ module TestCaseGenerator
         end
       end
     end
+    alias_method :seq, :concat
 
     def raw_each
       @patterns.each { |ptn| yield @before + ptn + @after }

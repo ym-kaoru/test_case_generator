@@ -1,8 +1,8 @@
 # coding: utf-8
 
 require 'thor'
-require 'testcase_generator/dsl_context'
-require 'testcase_generator/generator_objective_c'
+require 'test_case_generator/dsl_context'
+require 'test_case_generator/generator_objective_c'
 
 module TestCaseGenerator
   class CLI < Thor

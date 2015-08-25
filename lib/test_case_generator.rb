@@ -1,5 +1,5 @@
-require 'testcase_generator/version'
-require 'testcase_generator/cli'
+require 'test_case_generator/version'
+require 'test_case_generator/cli'
 
 module TestCaseGenerator
 end

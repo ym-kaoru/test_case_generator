@@ -1,4 +1,4 @@
-require 'testcase_generator/dsl_context'
+require 'test_case_generator/dsl_context'
 
 module TestCaseGenerator
   class IndentedWriter
