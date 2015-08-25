@@ -14,7 +14,8 @@ module TestcaseGenerator
       loader = TestcaseGenerator::DSLContextLoader.new
       ctx = loader.load testcase_fn
       gen = TestcaseGenerator::GeneratorObjectiveC.new
-      gen.write ctx, source_fn
+      gen.write_header ctx, File.join(File.dirname(source_fn), File.basename(source_fn, File.extname(source_fn)) + 'Generated.h')
+      gen.write_source ctx, source_fn
     end
 
   end

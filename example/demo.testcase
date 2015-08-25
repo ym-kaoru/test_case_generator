@@ -1,4 +1,24 @@
-testcase { |t|
-  t << :start
-  t << :stop
+before { |t|
+  t << :prepare_success
+}
+
+pattern { |t|
+  t << [:start, :stop]
+  t << [:start, :resume, :pause, :stop]
+}
+
+after { |t|
+  t << :should_be_not_error
+}
+
+seq {
+  pattern { |t|
+    t << [:A1, :A2]
+    t << [:B1, :B2]
+  }
+
+  pattern { |t|
+    t << [:C1, :C2]
+    t << [:D1, :D2]
+  }
 }

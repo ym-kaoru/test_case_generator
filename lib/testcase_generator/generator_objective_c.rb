@@ -2,18 +2,18 @@ require 'testcase_generator/dsl_context'
 
 module TestcaseGenerator
   class IndentedWriter
-    def initialize(f)
-      @f = f
+    def initialize(out)
+      @out = out
       @indent = []
       @current_indent = ''
     end
 
     def puts(line)
-      @f.puts @current_indent + line
+      @out.puts @current_indent + line
     end
 
     def blank
-      @f.puts
+      @out.puts
     end
 
     def indent(txt)
@@ -33,28 +33,54 @@ module TestcaseGenerator
   end
 
   class GeneratorObjectiveC
-    def write(dsl_context, source_fn)
+    def write_header(dsl_context, header_fn)
+      protocol_name = File.basename(header_fn, File.extname(header_fn))
+      tmp_fn = header_fn + '.tmp'
+      File.open(tmp_fn, 'w') do |f|
+        writer = IndentedWriter.new f
+
+        writer.puts '#import <Foundation/Foundation.h>'
+        writer.blank
+        writer.puts "@protocol #{protocol_name} <NSObject>"
+
+        dsl_context.each do |pattern|
+          method_name = pattern.join '_'
+          writer.puts "- (void)test_#{method_name};"
+        end
+
+        writer.puts '@end'
+      end
+
+      FileUtils.move tmp_fn, header_fn
+    end
+
+    def write_source(dsl_context, source_fn)
       tmp_fn = source_fn + '.tmp'
       source = File.open(source_fn).read
       File.open(tmp_fn, 'w') do |f|
         source.each_line do |line|
           f.puts line
-          break if line =~ /@@/
+          break if line =~ /^\s*\/\/\s*%%\s*$/
         end
 
         writer = IndentedWriter.new f
 
-        method_name = dsl_context.pattern.join '_'
-        writer.puts "- (void)test_#{method_name} {"
+        dsl_context.each do |pattern|
+          method_name = pattern.join '_'
+          writer.blank
+          writer.puts "- (void)test_#{method_name} {"
 
-        dsl_context.pattern.each do |ptn|
-          writer.block_indent '    ' do
-            writer.puts "[self #{ptn}];"
+          pattern.each do |ptn|
+            writer.block_indent '    ' do
+              writer.puts "[self #{ptn}];"
+            end
           end
+
+          writer.puts '}'
         end
 
-        writer.puts '}'
         writer.blank
+        writer.puts '@end'
       end
 
       FileUtils.move tmp_fn, source_fn
