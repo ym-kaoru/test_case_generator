@@ -2,32 +2,35 @@ require 'test_case_generator/dsl_context'
 require 'test_case_generator/indented_writer'
 
 module TestCaseGenerator
-  class GeneratorObjectiveC
+  class GeneratorJava
     def can_handle?(source_fn)
-      File.extname(source_fn).eql? '.m'
+      File.extname(source_fn).eql? '.java'
     end
 
     def write(ctx, source_fn)
-      write_header ctx, File.join(File.dirname(source_fn), File.basename(source_fn, File.extname(source_fn)) + 'Generated.h')
+      write_interface ctx, File.join(File.dirname(source_fn), File.basename(source_fn, File.extname(source_fn)) + 'Generated.java')
       write_source ctx, source_fn
     end
 
-    def write_header(dsl_context, header_fn)
-      protocol_name = File.basename(header_fn, File.extname(header_fn))
+    def write_interface(dsl_context, header_fn)
+      interface_name = File.basename(header_fn, File.extname(header_fn))
       tmp_fn = header_fn + '.tmp'
       File.open(tmp_fn, 'w') do |f|
         writer = IndentedWriter.new f
 
-        writer.puts '#import <Foundation/Foundation.h>'
         writer.blank
-        writer.puts "@protocol #{protocol_name} <NSObject>"
+        writer.puts '//'
+        writer.blank
+        writer.puts "public interface #{interface_name} {"
 
-        dsl_context.labels.each do |label|
-          method_name = label
-          writer.puts "- (void)#{method_name};"
+        writer.block_indent '    ' do
+          dsl_context.labels.each do |label|
+            method_name = label
+            writer.puts "void #{method_name}();"
+          end
         end
 
-        writer.puts '@end'
+        writer.puts '}'
       end
 
       FileUtils.move tmp_fn, header_fn
@@ -46,16 +49,19 @@ module TestCaseGenerator
 
         dsl_context.each do |pattern|
           method_name = pattern.join '_'
-          writer.blank
-          writer.puts "- (void)test_#{method_name} {"
+          writer.block_indent '    ' do
+            writer.blank
+            writer.puts '@Test'
+            writer.puts "public void test_#{method_name}() {"
 
-          pattern.each do |ptn|
-            writer.block_indent '    ' do
-              writer.puts "[self #{ptn}];"
+            pattern.each do |ptn|
+              writer.block_indent '    ' do
+                writer.puts "#{ptn}();"
+              end
             end
-          end
 
-          writer.puts '}'
+            writer.puts '}'
+          end
         end
 
         writer.blank
