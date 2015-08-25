@@ -43,9 +43,9 @@ module TestcaseGenerator
         writer.blank
         writer.puts "@protocol #{protocol_name} <NSObject>"
 
-        dsl_context.each do |pattern|
-          method_name = pattern.join '_'
-          writer.puts "- (void)test_#{method_name};"
+        dsl_context.labels.each do |label|
+          method_name = label
+          writer.puts "- (void)#{method_name};"
         end
 
         writer.puts '@end'
