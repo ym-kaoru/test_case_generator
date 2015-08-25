@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Kaoru Yanase']
   spec.email         = ['kaoru@yumemi.co.jp']
 
-  spec.summary       = 'Generates testcases for Objective-C.'
+  spec.summary       = 'Generates test-cases for Objective-C.'
   # spec.description   = %q{TODO: Write a longer description or delete this line.}
   spec.homepage      = 'https://github.com/ym-kaoru/test_case_generator'
   spec.license       = 'MIT'
