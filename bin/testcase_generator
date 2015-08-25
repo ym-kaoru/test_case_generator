@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require "bundler/setup"
-require "testcase_generator"
+require 'bundler/setup'
+require 'test_case_generator'
 
-TestcaseGenerator::CLI.start
+TestCaseGenerator::CLI.start

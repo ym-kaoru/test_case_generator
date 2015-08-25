@@ -1,6 +1,6 @@
 require 'testcase_generator/utils'
 
-module TestcaseGenerator
+module TestCaseGenerator
   class DSLContext
     attr_reader :children
     attr_reader :labels
@@ -14,14 +14,14 @@ module TestcaseGenerator
     end
 
     def <<(events)
-      if events.is_a?(String) or events.is_a?(Symbol)
+      if events.is_a?(String) || events.is_a?(Symbol)
         @patterns << [events]
         @labels << events unless @labels.include? events
       else
         @patterns << events
-        events.each { |label|
+        events.each do |label|
           @labels << label unless @labels.include? label
-        }
+        end
       end
     end
 
@@ -42,12 +42,12 @@ module TestcaseGenerator
       yield child_context
       @children << child_context
 
-      child_context.raw_each { |ptn|
+      child_context.raw_each do |ptn|
         @patterns << ptn
-        ptn.each { |label|
+        ptn.each do |label|
           @labels << label unless @labels.include? label
-        }
-      }
+        end
+      end
     end
 
     def seq(&block)
@@ -56,28 +56,28 @@ module TestcaseGenerator
 
       first = true
       tmp = []
-      child_context.children.each { |ctx|
+      child_context.children.each do |ctx|
         tmp2 = []
-        ctx.raw_each { |ptn|
+        ctx.raw_each do |ptn|
           if first
             tmp2 << ptn
           else
-            tmp.each { |x|
+            tmp.each do |x|
               tmp2 << x + ptn
-            }
+            end
           end
-        }
+        end
 
         tmp = tmp2
         first = false
-      }
+      end
 
-      tmp.each { |x|
+      tmp.each do |x|
         @patterns << x
-        x.each { |label|
+        x.each do |label|
           @labels << label unless @labels.include? label
-        }
-      }
+        end
+      end
     end
 
     def raw_each
@@ -85,14 +85,14 @@ module TestcaseGenerator
     end
 
     def each
-      raw_each { |raw_ptn|
+      raw_each do |raw_ptn|
         yield raw_ptn.map { |p|
           # p.to_s.split('_').inject([]) { |buffer, e|
           #   buffer << (buffer.empty? ? e : e.capitalize)
           # }.join
-          TestcaseGenerator::Utils.make_method_name p
+          TestCaseGenerator::Utils.make_method_name p
         }
-      }
+      end
     end
   end
 

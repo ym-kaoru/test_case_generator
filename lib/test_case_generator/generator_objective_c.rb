@@ -1,6 +1,6 @@
 require 'testcase_generator/dsl_context'
 
-module TestcaseGenerator
+module TestCaseGenerator
   class IndentedWriter
     def initialize(out)
       @out = out
