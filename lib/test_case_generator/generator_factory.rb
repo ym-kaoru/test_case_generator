@@ -13,9 +13,7 @@ module TestCaseGenerator
 
     def query(source_fn)
       @generators.each do |g|
-        if g.can_handle? source_fn
-          return g
-        end
+        return g if g.can_handle? source_fn
       end
     end
   end
