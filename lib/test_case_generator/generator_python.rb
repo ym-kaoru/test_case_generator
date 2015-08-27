@@ -26,17 +26,56 @@ module TestCaseGenerator
           method_name = pattern.join '_'
           writer.block_indent '    ' do
             writer.blank
-            writer.puts "def test_#{method_name}():"
+            writer.puts "def test_#{method_name}(self):"
 
             pattern.each do |ptn|
               writer.block_indent '    ' do
-                writer.puts "#{ptn}()"
+                writer.puts "self.#{ptn}()"
               end
             end
           end
         end
 
         writer.blank
+        writer.block_indent '    ' do
+          writer.puts "@classmethod"
+          writer.puts "def checkSanity(cls):"
+          writer.block_indent '    ' do
+            writer.puts "sane = True"
+            writer.puts "msg = []"
+            writer.puts "for method in [#{dsl_context.labels.map { |m| "'#{m}'" }.join(", ")}]:"
+            writer.block_indent '    ' do
+              writer.puts "if not hasattr(cls, method):"
+              writer.block_indent '    ' do
+                writer.puts "msg += ["
+                writer.block_indent '    ' do
+                  writer.puts "'    def %s(self):' % method,"
+                  writer.puts "'        pass',"
+                  writer.puts "'',"
+                end
+                writer.puts "]"
+                writer.puts "sane = False"
+              end
+            end
+
+            writer.blank
+            writer.puts "if not sane:"
+            writer.block_indent '    ' do
+              writer.puts "print cls.__name__ + ' must implement following method(s):'"
+              writer.puts "print"
+              writer.puts "print \"\\n\".join(msg)"
+              writer.puts "raise SystemExit(1)"
+            end
+          end
+        end
+
+        writer.blank
+        writer.blank
+        writer.puts "if __name__ == '__main__':"
+        writer.block_indent '    ' do
+          writer.puts "CommandLineArgumentsTestCase.checkSanity()"
+          writer.puts "unittest.main()"
+        end
       end
 
       FileUtils.move tmp_fn, source_fn
