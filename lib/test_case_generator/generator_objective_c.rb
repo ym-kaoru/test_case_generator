@@ -8,8 +8,41 @@ module TestCaseGenerator
     end
 
     def write(ctx, source_fn)
+      write_skeleton source_fn unless File.exists? source_fn
       write_header ctx, File.join(File.dirname(source_fn), File.basename(source_fn, File.extname(source_fn)) + 'Generated.h')
       write_source ctx, source_fn
+    end
+
+    def make_class_name(filename)
+      File.basename filename, ".*"
+    end
+
+    def write_skeleton(source_fn)
+      class_name = make_class_name(source_fn)
+      File.open(source_fn, 'w') do |f|
+        writer = IndentedWriter.new f
+        writer.puts <<EOS
+#import <UIKit/UIKit.h>
+#import <XCTest/XCTest.h>
+#import "#{class_name}Generated.h"
+#pragma mark -
+
+@interface #{class_name} : XCTestCase <#{class_name}Generated>
+@end
+
+@implementation #{class_name}
+
+- (void)setUp {
+    [super setUp];
+}
+
+- (void)tearDown {
+    [super tearDown];
+}
+
+// %%
+EOS
+      end
     end
 
     def write_header(dsl_context, header_fn)
