@@ -27,7 +27,7 @@ Write a .testcase file.
 Ex. Tests for a TableView in ViewController (YMTableView.testcase)
 
     before { |items|
-      items << :setUp
+      items << :prepareTarget
     }
 
     concat {
@@ -44,7 +44,7 @@ Ex. Tests for a TableView in ViewController (YMTableView.testcase)
     }
 
     after { |items|
-      items << :tearDown
+      items << :releaseTarget
     }
 
 To generate the .m file, run the test_case_generator. (YMTableView.m)

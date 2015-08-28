@@ -8,10 +8,40 @@ module TestCaseGenerator
     end
 
     def write(ctx, source_fn)
+      write_skeleton source_fn unless File.exists? source_fn
       write_source ctx, source_fn
     end
 
+    def make_class_name(filename)
+      File.basename filename, ".*"
+    end
+
+    def write_skeleton(source_fn)
+      class_name = make_class_name(source_fn)
+      File.open(source_fn, 'w') do |f|
+        writer = IndentedWriter.new f
+        writer.puts <<EOS
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import os
+import sys
+import unittest
+
+
+class #{class_name}(unittest.TestCase):
+    def setUp(self):
+        super(#{class_name}, self).setUp()
+
+    def tearDown(self):
+        super(#{class_name}, self).tearDown()
+
+# %%
+EOS
+      end
+    end
+
     def write_source(dsl_context, source_fn)
+      class_name = make_class_name(source_fn)
       tmp_fn = source_fn + '.tmp'
       source = File.open(source_fn).read
       File.open(tmp_fn, 'w') do |f|
@@ -45,46 +75,33 @@ module TestCaseGenerator
           end
         end
 
+        method_list = dsl_context.labels.map { |m| "'#{m}'" }.join(', ')
         writer.blank
-        writer.block_indent '    ' do
-          writer.puts '@classmethod'
-          writer.puts 'def checkSanity(cls):'
-          writer.block_indent '    ' do
-            writer.puts 'sane = True'
-            writer.puts 'msg = []'
-            writer.puts "for method in [#{dsl_context.labels.map { |m| "'#{m}'" }.join(', ')}]:"
-            writer.block_indent '    ' do
-              writer.puts 'if not hasattr(cls, method):'
-              writer.block_indent '    ' do
-                writer.puts 'msg += ['
-                writer.block_indent '    ' do
-                  writer.puts "'    def %s(self):' % method,"
-                  writer.puts "'        pass',"
-                  writer.puts "'',"
-                end
-                writer.puts ']'
-                writer.puts 'sane = False'
-              end
-            end
+        writer.puts <<EOS
+    @classmethod
+    def checkSanity(cls):
+        sane = True
+        msg = []
+        for method in [#{method_list}]:
+            if not hasattr(cls, method):
+                msg += [
+                    '    def %s(self):' % method,
+                    '        pass',
+                    '',
+                ]
+                sane = False
 
-            writer.blank
-            writer.puts 'if not sane:'
-            writer.block_indent '    ' do
-              writer.puts "print cls.__name__ + ' must implement following method(s):'"
-              writer.puts 'print'
-              writer.puts "print \"\\n\".join(msg)"
-              writer.puts 'raise SystemExit(1)'
-            end
-          end
-        end
+        if not sane:
+            print cls.__name__ + ' must implement following method(s):'
+            print
+            print "\\n".join(msg)
+            raise SystemExit(1)
 
-        writer.blank
-        writer.blank
-        writer.puts "if __name__ == '__main__':"
-        writer.block_indent '    ' do
-          writer.puts 'CommandLineArgumentsTestCase.checkSanity()'
-          writer.puts 'unittest.main()'
-        end
+
+if __name__ == '__main__':
+    #{class_name}.checkSanity()
+    unittest.main()
+EOS
       end
 
       FileUtils.move tmp_fn, source_fn
