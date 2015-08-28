@@ -25,7 +25,8 @@ module TestCaseGenerator
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
 #import "#{class_name}Generated.h"
-#pragma mark -
+
+#pragma mark - #{class_name}
 
 @interface #{class_name} : XCTestCase <#{class_name}Generated>
 @end
@@ -39,6 +40,10 @@ module TestCaseGenerator
 - (void)tearDown {
     [super tearDown];
 }
+
+#pragma mark #{class_name}Generated
+
+// TODO: ここにアクションを書いてください
 
 // %%
 EOS
@@ -56,7 +61,7 @@ EOS
         writer.puts "@protocol #{protocol_name} <NSObject>"
 
         dsl_context.labels.each do |label|
-          method_name = label
+          method_name = Utils.make_method_name label
           writer.puts "- (void)#{method_name};"
         end
 
