@@ -82,6 +82,50 @@ module TestCaseGenerator
     end
     alias_method :seq, :concat
 
+    def parallel(&block)
+      child_context = DSLContext.new
+      child_context.instance_eval &block
+
+      first = true
+      tmp = []
+      child_context.children.each do |ctx|
+        tmp2 = []
+        ctx.raw_each do |ptn|
+          if first
+            tmp2 << ptn
+          else
+            tmp.each do |x|
+              (0 .. x.length + ptn.length - 1).to_a.combination(x.length) do |index_arr|
+                x_index = 0
+                ptn_index = 0
+                tmp2 << (0 .. x.length + ptn.length - 1).map { |i|
+                  if index_arr.include?(i)
+                    ret = x[x_index]
+                    x_index += 1
+                  else
+                    ret = ptn[ptn_index]
+                    ptn_index += 1
+                  end
+
+                  ret
+                }
+              end
+            end
+          end
+        end
+
+        tmp = tmp2
+        first = false
+      end
+
+      tmp.each do |x|
+        @patterns << x
+        x.each do |label|
+          @labels << label unless @labels.include? label
+        end
+      end
+    end
+
     def raw_each
       @patterns.each { |ptn| yield @before + ptn + @after }
     end
