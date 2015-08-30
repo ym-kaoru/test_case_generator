@@ -95,10 +95,10 @@ module TestCaseGenerator
             tmp2 << ptn
           else
             tmp.each do |x|
-              (0 .. x.length + ptn.length - 1).to_a.combination(x.length) do |index_arr|
+              (0..x.length + ptn.length - 1).to_a.combination(x.length) do |index_arr|
                 x_index = 0
                 ptn_index = 0
-                tmp2 << (0 .. x.length + ptn.length - 1).map { |i|
+                tmp2 << (0..x.length + ptn.length - 1).map do |i|
                   if index_arr.include?(i)
                     ret = x[x_index]
                     x_index += 1
@@ -108,7 +108,7 @@ module TestCaseGenerator
                   end
 
                   ret
-                }
+                end
               end
             end
           end
