@@ -125,6 +125,7 @@ module TestCaseGenerator
         end
       end
     end
+    alias_method :para, :parallel
 
     def raw_each
       @patterns.each { |ptn| yield @before + ptn + @after }
