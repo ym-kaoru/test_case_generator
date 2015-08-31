@@ -228,5 +228,27 @@ describe TestCaseGenerator::DSLContext do
       end
       expect(check.join('|')).to be == 'test1,test2,test3,test4|test1,test3,test2,test4|test1,test3,test4,test2|test3,test1,test2,test4|test3,test1,test4,test2|test3,test4,test1,test2'
     end
+
+    it 'A parallel block with before and after block' do
+      @ctx.before do |items|
+        items << :before
+      end
+      @ctx.after do |items|
+        items << :after
+      end
+      @ctx.parallel do
+        choice do |items|
+          items << [:test1, :test2]
+        end
+        choice do |items|
+          items << :ev
+        end
+      end
+      check = []
+      @ctx.each do |x|
+        check << x.join(',')
+      end
+      expect(check.join('|')).to be == 'before,test1,test2,ev,after|before,test1,ev,test2,after|before,ev,test1,test2,after'
+    end
   end
 end
