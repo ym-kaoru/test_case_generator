@@ -1,0 +1,22 @@
+before { |items|
+    items << :on_create
+    items << :on_start
+}
+
+parallel {
+    choice { |items|
+        items << []
+        items << [:on_resume, :on_pause]
+    }
+
+    choice { |items|
+        items << :data_changed
+        items << :network_error
+        items << :time_out
+    }
+}
+
+after { |items|
+    items << :on_stop
+    items << :on_destroy
+}
