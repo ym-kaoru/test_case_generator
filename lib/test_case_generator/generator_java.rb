@@ -8,15 +8,14 @@ module TestCaseGenerator
     end
 
     def write(ctx, source_fn)
-      write_skeleton source_fn unless File.exists? source_fn
+      write_skeleton source_fn unless File.exist? source_fn
       write_interface ctx, File.join(File.dirname(source_fn), make_interface_name(source_fn)) + '.java'
       write_source ctx, source_fn
     end
 
-
     def make_class_name(filename)
       # File.join(File.dirname(source_fn), File.basename(source_fn, File.extname(source_fn))
-      File.basename filename, ".*"
+      File.basename filename, '.*'
     end
 
     def make_interface_name(filename)
@@ -27,12 +26,8 @@ module TestCaseGenerator
       parts = []
       java_seen = false
       File.absolute_path(File.dirname(filename)).split('/').each do |x|
-        if java_seen
-          parts << x
-        end
-        if x == 'java'
-          java_seen = true
-        end
+        parts << x if java_seen
+        java_seen = true if x == 'java'
       end
 
       if parts.empty?

@@ -8,13 +8,13 @@ module TestCaseGenerator
     end
 
     def write(ctx, source_fn)
-      write_skeleton source_fn unless File.exists? source_fn
+      write_skeleton source_fn unless File.exist? source_fn
       write_header ctx, File.join(File.dirname(source_fn), File.basename(source_fn, File.extname(source_fn)) + 'Generated.h')
       write_source ctx, source_fn
     end
 
     def make_class_name(filename)
-      File.basename filename, ".*"
+      File.basename filename, '.*'
     end
 
     def write_skeleton(source_fn)
