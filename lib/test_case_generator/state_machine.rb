@@ -34,7 +34,8 @@ module TestCaseGenerator
 
       @state_list = []
       @path_list = []
-      @start_state = nil
+      @start_state = attrs[:start_state]
+      @reject_block = nil
     end
 
     def add_state(name, options={})
@@ -47,6 +48,10 @@ module TestCaseGenerator
       @path_list << ctx
     end
 
+    def reject(&block)
+      @reject_block = block
+    end
+
     def start_state
       if @start_state.nil?
         @state_list[0]
@@ -55,16 +60,25 @@ module TestCaseGenerator
       end
     end
 
-    def items
+    def items(options={})
       out_items = []
-      _items! out_items, start_state
-      out_items
+      counter = {}
+      _items! out_items, counter, start_state, options
+      out_items.uniq!
+      out_items.reject! &(@reject_block) unless @reject_block.nil?
 
       p out_items
+      out_items
     end
 
-    def _items!(out_items, state)
+    def _items!(out_items, counter, state, options={})
       return if state.nil?
+
+      count = counter[state.name] || 0
+      count += 1
+      counter[state.name] = count
+
+      return if count > (options[:limit] || 2)
 
       Utils.concat! out_items, state.items
 
@@ -72,7 +86,7 @@ module TestCaseGenerator
       @path_list.find_all{|path| path.src_state == state.name}.each do |path|
         tmp_list = []
         Utils.concat! tmp_list, path.items
-        _items! tmp_list, @state_list.find{ |state| state.name == path.dest_state}
+        _items! tmp_list, counter.clone, @state_list.find{ |s| s.name == path.dest_state}
         tmp_list0.concat tmp_list
       end
 
