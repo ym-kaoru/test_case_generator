@@ -35,7 +35,7 @@ class #{class_name}(unittest.TestCase):
     def tearDown(self):
         super(#{class_name}, self).tearDown()
 
-# %%
+    # %%
 EOS
       end
     end

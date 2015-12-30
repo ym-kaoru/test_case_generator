@@ -162,7 +162,7 @@ module TestCaseGenerator
         tmp_items = idx_to.nil? ? [pattern2] : [pattern2[0 ... idx_to]]
         Utils.para! tmp_items, options[:items]
 
-        out_items.concat tmp_items.map{ |ptn| pattern1[0 .. idx_from] + ptn + (idx_to.nil? ? pattern2 : pattern2[idx_to ... pattern2.size]) }
+        out_items.concat tmp_items.map{ |ptn| pattern1[0 .. idx_from] + ptn + (idx_to.nil? ? [] : pattern2[idx_to ... pattern2.size]) }
       end
 
       out_items.uniq
