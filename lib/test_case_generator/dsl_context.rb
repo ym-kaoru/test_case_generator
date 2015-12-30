@@ -178,6 +178,12 @@ module TestCaseGenerator
 
     def add_patterns(patterns)
       @patterns.concat patterns
+
+      patterns.each do |pattern|
+        pattern.each do |label|
+          @labels << label unless @labels.include? label
+        end
+      end
     end
 
     def raw_each
