@@ -1,4 +1,5 @@
 require 'test_case_generator/utils'
+require 'test_case_generator/state_machine'
 
 module TestCaseGenerator
   class DSLContext
@@ -126,6 +127,24 @@ module TestCaseGenerator
       end
     end
     alias_method :para, :parallel
+
+    def def_state_machine(options={}, &block)
+      ctx = StateMachineContext.new(options)
+      ctx.instance_eval &block if block_given?
+      ctx
+    end
+
+    def state_machine(options={}, &block)
+      ctx = def_state_machine options, &block
+
+      ctx.items.each do |x|
+        @patterns << x
+        x.each do |label|
+          @labels << label unless @labels.include? label
+        end
+      end
+      # @patterns.concat ctx.items
+    end
 
     def raw_each
       @patterns.each { |ptn| yield @before + ptn + @after }
