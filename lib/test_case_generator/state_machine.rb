@@ -28,14 +28,33 @@ module TestCaseGenerator
     end
   end
 
+  class Fork
+    attr_reader :state
+
+    def initialize(state, attrs={})
+      @state = state
+      @attrs = attrs
+    end
+
+    def items
+      @attrs[:items] || []
+    end
+
+    # def join
+    #   @attrs[:join]
+    # end
+  end
+
   class StateMachineContext
     def initialize(attrs={})
       @attrs = attrs
 
       @state_list = []
       @path_list = []
+      @fork_list = []
       @start_state = attrs[:start_state]
       @reject_block = nil
+      @filter_block = nil
     end
 
     def add_state(name, options={})
@@ -52,6 +71,14 @@ module TestCaseGenerator
       @reject_block = block
     end
 
+    def filter(&block)
+      @filter_block = block
+    end
+
+    def fork(state, options={})
+      @fork_list << Fork.new(state, options)
+    end
+
     def start_state
       if @start_state.nil?
         @state_list[0]
@@ -66,6 +93,7 @@ module TestCaseGenerator
       _items! out_items, counter, start_state, options
       out_items.uniq!
       out_items.reject! &(@reject_block) unless @reject_block.nil?
+      out_items.keep_if &(@filter_block) unless @filter_block.nil?
 
       p out_items
       out_items
@@ -88,6 +116,10 @@ module TestCaseGenerator
         Utils.concat! tmp_list, path.items
         _items! tmp_list, counter.clone, @state_list.find{ |s| s.name == path.dest_state}
         tmp_list0.concat tmp_list
+      end
+
+      @fork_list.find_all{|fork| fork.state == state.name}.each do |fork|
+        Utils.para! tmp_list0, fork.items
       end
 
       Utils.concat! out_items, tmp_list0

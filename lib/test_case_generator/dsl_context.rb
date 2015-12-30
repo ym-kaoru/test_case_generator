@@ -146,6 +146,40 @@ module TestCaseGenerator
       # @patterns.concat ctx.items
     end
 
+    def add_async_events(src_items, options={})
+      out_items = []
+
+      src_items.each do |pattern1|
+        idx_from = options[:from].nil? ? nil : pattern1.find_index{|item| item==options[:from]}
+        if idx_from.nil?
+          out_items << pattern1
+          next
+        end
+
+        pattern2 = pattern1[idx_from + 1 ... pattern1.size]
+        idx_to = options[:to].nil? ? nil : pattern2.find_index{|item| item==options[:to]}
+
+        tmp_items = idx_to.nil? ? [pattern2] : [pattern2[0 ... idx_to]]
+        Utils.para! tmp_items, options[:items]
+
+        out_items.concat tmp_items.map{ |ptn| pattern1[0 .. idx_from] + ptn + (idx_to.nil? ? pattern2 : pattern2[idx_to ... pattern2.size]) }
+      end
+
+      out_items.uniq
+    end
+
+    def add_async_events!(src_items, options={})
+      tmp_items = add_async_events(src_items, options)
+
+      src_items.clear
+      src_items.concat tmp_items
+      src_items
+    end
+
+    def add_patterns(patterns)
+      @patterns.concat patterns
+    end
+
     def raw_each
       @patterns.each { |ptn| yield @before + ptn + @after }
     end
