@@ -28,6 +28,15 @@ import sys
 import unittest
 
 
+def print_patterns(patterns):
+    def wrapper(fn):
+        def _(self):
+            print "TEST: %s" % (",".join(patterns))
+            fn(self)
+        return _
+    return wrapper
+
+
 class #{class_name}(unittest.TestCase):
     def setUp(self):
         super(#{class_name}, self).setUp()
@@ -65,6 +74,7 @@ EOS
           method_name = pattern.join '_'
           writer.block_indent '    ' do
             writer.blank
+            writer.puts "@print_patterns([#{pattern.map{|p| "'#{p}'"}.join(', ')}])"
             writer.puts "def test_#{method_name}(self):"
 
             pattern.each do |ptn|
