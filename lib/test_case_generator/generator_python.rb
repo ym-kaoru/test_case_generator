@@ -31,6 +31,7 @@ import unittest
 def print_patterns(patterns):
     def wrapper(fn):
         def _(self):
+            print
             print "TEST: %s" % (",".join(patterns))
             fn(self)
         return _
@@ -42,9 +43,11 @@ def run_pending_tasks(fn):
         fn(self)
 
         while len(self.pending_tasks) > 0:
-            pending_tasks = self.pending_tasks
+            # http://stackoverflow.com/questions/2612802/how-to-clone-or-copy-a-list-in-python
+            # Use instead of a weird syntax new_list = old_list[:]
+            pending_tasks = list(self.pending_tasks)
+            self.pending_tasks[:] = []
 
-            self.pending_tasks = []
             for task in pending_tasks:
                 task()  # Maybe added into self.pending_tasks
 
@@ -61,9 +64,9 @@ class #{class_name}(unittest.TestCase):
         super(#{class_name}, self).tearDown()
 
     def _run_timer_tasks(self):
-        timer_tasks = self.timer_tasks
+        timer_tasks = list(self.timer_tasks)
+        self.timer_tasks[:] = []
 
-        self.timer_tasks = []
         for task in timer_tasks:
             task()  # Maybe added into self.timer_tasks
 
