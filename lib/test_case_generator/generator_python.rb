@@ -37,12 +37,35 @@ def print_patterns(patterns):
     return wrapper
 
 
+def run_pending_tasks(fn):
+    def _(self):
+        fn(self)
+
+        while len(self.pending_tasks) > 0:
+            pending_tasks = self.pending_tasks
+
+            self.pending_tasks = []
+            for task in pending_tasks:
+                task()  # Maybe added into self.pending_tasks
+
+    return _
+
+
 class #{class_name}(unittest.TestCase):
     def setUp(self):
         super(#{class_name}, self).setUp()
+        self.pending_tasks = []
+        self.timer_tasks = []
 
     def tearDown(self):
         super(#{class_name}, self).tearDown()
+
+    def _run_timer_tasks(self):
+        timer_tasks = self.timer_tasks
+
+        self.timer_tasks = []
+        for task in timer_tasks:
+            task()  # Maybe added into self.timer_tasks
 
     # %%
 EOS
