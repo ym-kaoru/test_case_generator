@@ -32,7 +32,7 @@ def print_patterns(patterns):
     def wrapper(fn):
         def _(self):
             print
-            print "TEST: %s" % (",".join(patterns))
+            print "<<TEST>> %s" % (", ".join(patterns))
             fn(self)
         return _
     return wrapper
