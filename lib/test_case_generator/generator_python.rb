@@ -8,7 +8,7 @@ module TestCaseGenerator
     end
 
     def write(ctx, source_fn)
-      write_skeleton source_fn unless File.exist? source_fn
+      write_skeleton ctx, source_fn unless File.exist? source_fn
       write_source ctx, source_fn
     end
 
@@ -16,8 +16,8 @@ module TestCaseGenerator
       File.basename filename, '.*'
     end
 
-    def write_skeleton(source_fn)
-      class_name = make_class_name(source_fn)
+    def write_skeleton(dsl_context, source_fn)
+      class_name = dsl_context.class_name || make_class_name(source_fn)
       File.open(source_fn, 'w') do |f|
         writer = IndentedWriter.new f
         writer.puts <<EOS
@@ -73,7 +73,7 @@ EOS
     end
 
     def write_source(dsl_context, source_fn)
-      class_name = make_class_name(source_fn)
+      class_name = dsl_context.class_name || make_class_name(source_fn)
       tmp_fn = source_fn + '.tmp'
       source = File.open(source_fn).read
       File.open(tmp_fn, 'w') do |f|

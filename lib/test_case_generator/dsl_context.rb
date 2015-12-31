@@ -5,6 +5,7 @@ module TestCaseGenerator
   class DSLContext
     attr_reader :children
     attr_reader :labels
+    attr_reader :class_name
 
     def initialize
       @patterns = []
@@ -12,6 +13,7 @@ module TestCaseGenerator
       @after = []
       @children = []
       @labels = []
+      @class_name = nil
     end
 
     def <<(events)
@@ -184,6 +186,10 @@ module TestCaseGenerator
           @labels << label unless @labels.include? label
         end
       end
+    end
+
+    def set_class_name(class_name)
+      @class_name = class_name
     end
 
     def raw_each
