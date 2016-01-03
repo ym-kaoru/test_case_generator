@@ -26,6 +26,8 @@ module TestCaseGenerator
 import os
 import sys
 import unittest
+# from assets.stub_android import stub_api_model
+# from assets.stub_android import stub_android
 
 
 def print_patterns(patterns):
