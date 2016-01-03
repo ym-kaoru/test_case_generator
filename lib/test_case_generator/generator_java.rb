@@ -51,13 +51,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
+import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.ArrayList;
+
 import static org.junit.Assert.*;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(emulateSdk = 18)
+@RunWith(RobolectricGradleTestRunner.class)
+@Config(constants = BuildConfig.class, sdk = 18)
 public class #{class_name} implements #{make_interface_name source_fn} {
     private final ArrayList<Runnable> mPendingTasks = new ArrayList<>();
     private final ArrayList<Runnable> mTimerTasks = new ArrayList<>();
@@ -72,11 +75,13 @@ public class #{class_name} implements #{make_interface_name source_fn} {
     public void tearDown() {
     }
 
+    // TODO: Please implement custom actions here.
+
     private void printPatterns(String patterns) {
-        System.err.printLn("<<TEST>> " + patterns);
+        System.err.println("<<TEST>> " + patterns);
     }
 
-    private void runPendingTasks():
+    private void runPendingTasks() {
         ArrayList<Runnable> runners = new ArrayList<>();
 
         while ( !mPendingTasks.isEmpty()) {
@@ -158,7 +163,7 @@ EOS
             writer.puts '@Test'
             writer.puts "public void test_#{method_name}() {"
             writer.block_indent '    ' do
-              writer.puts "printPatterns(\"#{pattern.map{|p| "#{p}"}.join(', ')}\")"
+              writer.puts "printPatterns(\"#{pattern.map{|p| "#{p}"}.join(', ')}\");"
               pattern.each do |ptn|
                 writer.puts "#{ptn}();"
               end
