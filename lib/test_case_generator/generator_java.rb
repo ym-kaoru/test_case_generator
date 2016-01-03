@@ -62,17 +62,21 @@ import static org.junit.Assert.*;
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 18)
 public class #{class_name} implements #{make_interface_name source_fn} {
-    private final ArrayList<Runnable> mPendingTasks = new ArrayList<>();
-    private final ArrayList<Runnable> mTimerTasks = new ArrayList<>();
 
     @Before
     public void setUp() {
-        mPendingTasks.clear();
-        mTimerTasks.clear();
+        Robolectric.getForegroundThreadScheduler().reset();
+        Robolectric.getForegroundThreadScheduler().pause();
+        Robolectric.getBackgroundThreadScheduler().reset();
+        Robolectric.getBackgroundThreadScheduler().pause();
     }
 
     @After
     public void tearDown() {
+        Robolectric.getForegroundThreadScheduler().reset();
+        Robolectric.getForegroundThreadScheduler().unPause();
+        Robolectric.getBackgroundThreadScheduler().reset();
+        Robolectric.getBackgroundThreadScheduler().unPause();
     }
 
     // TODO: Please implement custom actions here.
@@ -82,27 +86,11 @@ public class #{class_name} implements #{make_interface_name source_fn} {
     }
 
     private void runPendingTasks() {
-        ArrayList<Runnable> runners = new ArrayList<>();
-
-        while ( !mPendingTasks.isEmpty()) {
-            runners.addAll(mPendingTasks);
-            mPendingTasks.clear();
-
-            for (Runnable r : runners) {
-                r.run();  // Maybe add tasks into mPendingTasks
-            }
-            runners.clear();
-        }
+        Robolectric.getForegroundThreadScheduler().advanceBy(1);
     }
 
     private void runTimerTasks() {
-        ArrayList<Runnable> timerTasks = new ArrayList<>();
-        timerTasks.addAll(mTimerTasks);
-        mTimerTasks.clear();
-
-        for (Runnable task : timerTasks) {
-            task.run();
-        }
+        Robolectric.getForegroundThreadScheduler().advanceBy(30 * 1000);
     }
 
     // %%
