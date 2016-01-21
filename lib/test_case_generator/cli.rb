@@ -8,6 +8,7 @@ require 'test_case_generator/generator_java'
 require 'test_case_generator/generator_php'
 require 'test_case_generator/generator_python'
 require 'test_case_generator/generator_javascript'
+require 'test_case_generator/generator_cplusplus'
 
 module TestCaseGenerator
   class CLI < Thor
@@ -24,6 +25,7 @@ module TestCaseGenerator
       factory.register TestCaseGenerator::GeneratorPHP.new
       factory.register TestCaseGenerator::GeneratorPython.new
       factory.register TestCaseGenerator::GeneratorJavaScript.new
+      factory.register TestCaseGenerator::GeneratorCplusplus.new
 
       gen = factory.query source_fn
       gen.write ctx, source_fn
