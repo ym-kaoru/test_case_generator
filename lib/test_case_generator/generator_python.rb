@@ -8,7 +8,7 @@ module TestCaseGenerator
     end
 
     def write(ctx, source_fn)
-      write_skeleton source_fn unless File.exist? source_fn
+      write_skeleton ctx, source_fn unless File.exist? source_fn
       write_source ctx, source_fn
     end
 
@@ -16,8 +16,8 @@ module TestCaseGenerator
       File.basename filename, '.*'
     end
 
-    def write_skeleton(source_fn)
-      class_name = make_class_name(source_fn)
+    def write_skeleton(dsl_context, source_fn)
+      class_name = dsl_context.class_name || make_class_name(source_fn)
       File.open(source_fn, 'w') do |f|
         writer = IndentedWriter.new f
         writer.puts <<EOS
@@ -26,22 +26,59 @@ module TestCaseGenerator
 import os
 import sys
 import unittest
+# from assets.stub_android import stub_api_model
+# from assets.stub_android import stub_android
+
+
+def print_patterns(patterns):
+    def wrapper(fn):
+        def _(self):
+            print
+            print "<<TEST>> %s" % (", ".join(patterns))
+            fn(self)
+        return _
+    return wrapper
+
+
+def run_pending_tasks(fn):
+    def _(self):
+        fn(self)
+
+        while len(self.pending_tasks) > 0:
+            # http://stackoverflow.com/questions/2612802/how-to-clone-or-copy-a-list-in-python
+            # Use instead of a weird syntax new_list = old_list[:]
+            pending_tasks = list(self.pending_tasks)
+            self.pending_tasks[:] = []
+
+            for task in pending_tasks:
+                task()  # Maybe added into self.pending_tasks
+
+    return _
 
 
 class #{class_name}(unittest.TestCase):
     def setUp(self):
         super(#{class_name}, self).setUp()
+        self.pending_tasks = []
+        self.timer_tasks = []
 
     def tearDown(self):
         super(#{class_name}, self).tearDown()
 
-# %%
+    def _run_timer_tasks(self):
+        timer_tasks = list(self.timer_tasks)
+        self.timer_tasks[:] = []
+
+        for task in timer_tasks:
+            task()  # Maybe added into self.timer_tasks
+
+    # %%
 EOS
       end
     end
 
     def write_source(dsl_context, source_fn)
-      class_name = make_class_name(source_fn)
+      class_name = dsl_context.class_name || make_class_name(source_fn)
       tmp_fn = source_fn + '.tmp'
       source = File.open(source_fn).read
       File.open(tmp_fn, 'w') do |f|
@@ -65,6 +102,7 @@ EOS
           method_name = pattern.join '_'
           writer.block_indent '    ' do
             writer.blank
+            writer.puts "@print_patterns([#{pattern.map{|p| "'#{p}'"}.join(', ')}])"
             writer.puts "def test_#{method_name}(self):"
 
             pattern.each do |ptn|

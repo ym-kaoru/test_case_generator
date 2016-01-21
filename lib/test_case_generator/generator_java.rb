@@ -9,7 +9,7 @@ module TestCaseGenerator
 
     def write(ctx, source_fn)
       write_skeleton source_fn unless File.exist? source_fn
-      write_interface ctx, File.join(File.dirname(source_fn), make_interface_name(source_fn)) + '.java'
+      write_interface ctx, File.join(File.dirname(source_fn), make_interface_name(source_fn)) + '.java', make_package_name(source_fn)
       write_source ctx, source_fn
     end
 
@@ -51,21 +51,46 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
+import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.ArrayList;
+
 import static org.junit.Assert.*;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(emulateSdk = 18)
+@RunWith(RobolectricGradleTestRunner.class)
+@Config(constants = BuildConfig.class, sdk = 18)
 public class #{class_name} implements #{make_interface_name source_fn} {
 
     @Before
     public void setUp() {
+        Robolectric.getForegroundThreadScheduler().reset();
+        Robolectric.getForegroundThreadScheduler().pause();
+        Robolectric.getBackgroundThreadScheduler().reset();
+        Robolectric.getBackgroundThreadScheduler().pause();
     }
 
     @After
     public void tearDown() {
+        Robolectric.getForegroundThreadScheduler().reset();
+        Robolectric.getForegroundThreadScheduler().unPause();
+        Robolectric.getBackgroundThreadScheduler().reset();
+        Robolectric.getBackgroundThreadScheduler().unPause();
+    }
+
+    // TODO: Please implement custom actions here.
+
+    private void printPatterns(String patterns) {
+        System.err.println("<<TEST>> " + patterns);
+    }
+
+    private void runPendingTasks() {
+        Robolectric.getForegroundThreadScheduler().advanceBy(1);
+    }
+
+    private void runTimerTasks() {
+        Robolectric.getForegroundThreadScheduler().advanceBy(30 * 1000);
     }
 
     // %%
@@ -74,17 +99,16 @@ EOS
       end
     end
 
-    def write_interface(dsl_context, header_fn)
+    def write_interface(dsl_context, header_fn, package_name)
       interface_name = File.basename(header_fn, File.extname(header_fn))
       tmp_fn = header_fn + '.tmp'
       File.open(tmp_fn, 'w') do |f|
         writer = IndentedWriter.new f
+        writer.puts <<EOS
+package #{package_name};
 
-        writer.blank
-        writer.puts '//'
-        writer.blank
-        writer.puts "public interface #{interface_name} {"
-
+public interface #{interface_name} {
+EOS
         writer.block_indent '    ' do
           dsl_context.labels.each do |label|
             method_name = label
@@ -92,7 +116,9 @@ EOS
           end
         end
 
-        writer.puts '}'
+        writer.puts <<EOS
+}
+EOS
       end
 
       FileUtils.move tmp_fn, header_fn
@@ -124,9 +150,9 @@ EOS
             writer.blank
             writer.puts '@Test'
             writer.puts "public void test_#{method_name}() {"
-
-            pattern.each do |ptn|
-              writer.block_indent '    ' do
+            writer.block_indent '    ' do
+              writer.puts "printPatterns(\"#{pattern.map{|p| "#{p}"}.join(', ')}\");"
+              pattern.each do |ptn|
                 writer.puts "#{ptn}();"
               end
             end
