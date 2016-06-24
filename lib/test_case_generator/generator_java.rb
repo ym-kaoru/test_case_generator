@@ -58,6 +58,7 @@ import org.robolectric.annotation.Config;
 import java.util.ArrayList;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 18)
@@ -69,6 +70,10 @@ public class #{class_name} implements #{make_interface_name source_fn} {
         Robolectric.getForegroundThreadScheduler().pause();
         Robolectric.getBackgroundThreadScheduler().reset();
         Robolectric.getBackgroundThreadScheduler().pause();
+
+        // Auto import 機能でimport文が削除されないようにするためのダミー
+        assertEquals("dummy", "dummy");
+        mock(String.class);
     }
 
     @After
