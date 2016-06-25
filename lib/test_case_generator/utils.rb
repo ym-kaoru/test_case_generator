@@ -6,6 +6,16 @@ module TestCaseGenerator
       end.join
     end
 
+    def self.concat(*args)
+      out_items = []
+
+      args.each do |arg|
+        self.concat! out_items, arg
+      end
+
+      out_items
+    end
+
     def self.concat!(out_items, other_list)
       if out_items.size == 0
         out_items.concat other_list
@@ -21,6 +31,16 @@ module TestCaseGenerator
 
         out_items.clear
         out_items.concat tmp_list
+      end
+
+      out_items
+    end
+
+    def self.para(*args)
+      out_items = []
+
+      args.each do |arg|
+        self.para! out_items, arg
       end
 
       out_items

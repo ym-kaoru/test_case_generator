@@ -83,7 +83,10 @@ module TestCaseGenerator
         end
       end
     end
-    alias_method :seq, :concat
+
+    def seq(*args)
+      Utils.concat *args
+    end
 
     def parallel(&block)
       child_context = DSLContext.new
@@ -128,7 +131,10 @@ module TestCaseGenerator
         end
       end
     end
-    alias_method :para, :parallel
+
+    def para(*args)
+      Utils.para *args
+    end
 
     def def_state_machine(options={}, &block)
       ctx = StateMachineContext.new(options)
